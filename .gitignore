@@ -1,0 +1,10 @@
+# folder
+.idea/
+bin/
+/tmp/
+
+# miscelaous
+*.swp
+
+# coverage
+*.out
