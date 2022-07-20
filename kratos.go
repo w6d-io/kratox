@@ -12,7 +12,7 @@ import (
 )
 
 type Conn struct {
-	// Address is the the address to the kratos micro service
+	// Address is the address to the kratos micro service
 	Address string `json:"address" mapstructure:"address"`
 }
 

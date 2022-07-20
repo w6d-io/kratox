@@ -3,51 +3,212 @@ package kratos
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
-
+	"fmt"
 	client "github.com/ory/kratos-client-go"
 	"github.com/ory/kratos/identity"
 	"github.com/ory/kratos/selfservice/strategy/oidc"
 	"github.com/tidwall/gjson"
-
 	"github.com/w6d-io/x/errorx"
 	"github.com/w6d-io/x/logx"
+	"io/ioutil"
+	"net/http"
 )
 
-const (
-	// path to the identities entrypoint on kratos
-	identityPath = "/identities/"
-)
+// DeleteIdentityFromHTTP is used to delete the identity who correspond to the user id on kratos service
+// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
+func (a auth) DeleteIdentityFromHTTP(ctx context.Context, id string) error {
+	log := logx.WithName(ctx, "DeleteIdentityFromHTTP")
+
+	cfg := client.NewConfiguration()
+
+	// get kratos uriat <svc>:<port>
+	u, err := a.getKratosAddress()
+	if err != nil {
+		return errorx.NewHTTP(err, http.StatusInternalServerError, "fail to get kratos address")
+	}
+	cfg.Scheme = u.Scheme
+	cfg.Host = u.Host
+
+	apiClient := client.NewAPIClient(cfg)
+
+	r, err := apiClient.V0alpha2Api.AdminDeleteIdentity(context.Background(), id).Execute()
+	if err != nil {
+		log.Error(err, "Error when calling `V0alpha2Api.AdminDeleteIdentity`` %v\n")
+		log.Error(err,"Full HTTP response: %v\n", r)
+		return errorx.NewHTTP(err, r.StatusCode, "fail to call kratos")
+	}
+
+	logx.WithName(ctx, fmt.Sprintf("\"Successfully Removed identity\" with id %v\n", id))
+	return nil
+}
+
+// UpdateIdentityFromHTTP is used to Update the identity whith user id on kratos service
+// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
+func (a auth) UpdateIdentityFromHTTP(ctx context.Context, id string, schemaId string, trait map[string]interface{}) (*identity.Identity, error) {
+	log := logx.WithName(ctx, "UpdateIdentityFromHTTP")
+
+	cfg := client.NewConfiguration()
+
+	// get kratos uriat <svc>:<port>
+	u, err := a.getKratosAddress()
+	if err != nil {
+		return nil, errorx.NewHTTP(err, http.StatusInternalServerError, "fail to get kratos address")
+	}
+	cfg.Scheme = u.Scheme
+	cfg.Host = u.Host
+
+	apiClient := client.NewAPIClient(cfg)
+
+	adminUpdateIdentityBody  := *client.NewAdminUpdateIdentityBody(
+		schemaId,
+		"active",
+		trait,
+	) // AdminCreateIdentityBody |  (optional)
+
+	updateIdentity, r, err := apiClient.V0alpha2Api.AdminUpdateIdentity(context.Background(), id).AdminUpdateIdentityBody(adminUpdateIdentityBody).Execute()
+	if err != nil {
+		log.Error(err, "Error when calling `V0alpha2Api.AdminUpdateIdentity``: %v\n")
+		log.Error(err, "Full HTTP response: %v\n")
+		return nil, errorx.NewHTTP(err, r.StatusCode, "fail to call kratos")
+	}
+	// response from `updateIdentity`: Identity
+	log.Error(err, "Created identity with ID: %v\n", updateIdentity.Id)
+
+	// ready response from kratos SDK
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Error(err, "error call to kratos SDK")
+		return nil, errorx.NewHTTP(err, r.StatusCode, "fail to call kratos SDK")
+	}
+	defer func() {
+		_ = r.Body.Close()
+	}()
+
+	// unmarshalling body into identity struct
+	i := identity.Identity{}
+	if err := json.Unmarshal(body, &i); err != nil {
+		log.Error(err, "cannot unmarshal body into identity struct")
+		return nil, errorx.NewHTTP(err, http.StatusInternalServerError, "cannot unmarshal body into identity struct")
+	}
+	configContent := gjson.GetBytes(body, "credentials.oidc.config").String()
+
+	if _, ok := i.Credentials[identity.CredentialsTypeOIDC]; !ok {
+		i.Credentials = map[identity.CredentialsType]identity.Credentials{
+			identity.CredentialsTypeOIDC: {
+				Config: []byte(configContent),
+			},
+		}
+	}
+	var config oidc.CredentialsConfig
+	credentials, err := i.ParseCredentials(identity.CredentialsTypeOIDC, &config)
+	if err != nil {
+		log.Error(err, "fail to parse credential")
+		return &i, nil
+	}
+	i.Credentials = map[identity.CredentialsType]identity.Credentials{identity.CredentialsTypeOIDC: *credentials}
+	return &i, nil
+}
+
+// CreateIdentityFromHTTP is used to create the identity whith user id on kratos service
+// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
+func (a auth) CreateIdentityFromHTTP(ctx context.Context, schemaId string, trait map[string]interface{}) (*identity.Identity, error) {
+	log := logx.WithName(ctx, "CreateIdentityFromHTTP")
+
+	cfg := client.NewConfiguration()
+
+	// get kratos uriat <svc>:<port>
+	u, err := a.getKratosAddress()
+	if err != nil {
+		return nil, errorx.NewHTTP(err, http.StatusInternalServerError, "fail to get kratos address")
+	}
+	cfg.Scheme = u.Scheme
+	cfg.Host = u.Host
+
+	apiClient := client.NewAPIClient(cfg)
+
+	adminCreateIdentityBody := *client.NewAdminCreateIdentityBody(
+		schemaId,
+		trait,
+	) // AdminCreateIdentityBody |  (optional)
+
+	createdIdentity, r, err := apiClient.V0alpha2Api.AdminCreateIdentity(context.Background()).AdminCreateIdentityBody(adminCreateIdentityBody).Execute()
+	if err != nil {
+		log.Error(err, "Error when calling `V0alpha2Api.AdminCreateIdentity``: %v\n")
+		log.Error(err, "Full HTTP response: %v\n")
+		return nil, errorx.NewHTTP(err, r.StatusCode, "fail to call kratos")
+	}
+	// response from `AdminCreateIdentity`: Identity
+	log.Error(err, "Created identity with ID: %v\n", createdIdentity.Id)
+
+	// ready response from kratos SDK
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Error(err, "error call to kratos SDK")
+		return nil, errorx.NewHTTP(err, r.StatusCode, "fail to call kratos SDK")
+	}
+	defer func() {
+		_ = r.Body.Close()
+	}()
+
+	// unmarshalling body into identity struct
+	i := identity.Identity{}
+	if err := json.Unmarshal(body, &i); err != nil {
+		log.Error(err, "cannot unmarshal body into identity struct")
+		return nil, errorx.NewHTTP(err, http.StatusInternalServerError, "cannot unmarshal body into identity struct")
+	}
+	configContent := gjson.GetBytes(body, "credentials.oidc.config").String()
+
+	if _, ok := i.Credentials[identity.CredentialsTypeOIDC]; !ok {
+		i.Credentials = map[identity.CredentialsType]identity.Credentials{
+			identity.CredentialsTypeOIDC: {
+				Config: []byte(configContent),
+			},
+		}
+	}
+	var config oidc.CredentialsConfig
+	credentials, err := i.ParseCredentials(identity.CredentialsTypeOIDC, &config)
+	if err != nil {
+		log.Error(err, "fail to parse credential")
+		return &i, nil
+	}
+	i.Credentials = map[identity.CredentialsType]identity.Credentials{identity.CredentialsTypeOIDC: *credentials}
+	return &i, nil
+}
 
 // GetIdentityFromHTTP is used to get the identity who correspond to the user id on kratos service
 // if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
 func (a auth) GetIdentityFromHTTP(ctx context.Context, id string) (*identity.Identity, error) {
 	log := logx.WithName(ctx, "GetIdentityFromHTTP")
 
-	// calling kratos at <svc>:<port>/<identityPath>/<id>
+	cfg := client.NewConfiguration()
+
+	// get kratos uriat <svc>:<port>
 	u, err := a.getKratosAddress()
 	if err != nil {
-		return nil, errorx.NewHTTP(err, http.StatusInternalServerError, "unable to get kratos address")
+		return nil, errorx.NewHTTP(err, http.StatusInternalServerError, "fail to get kratos address")
 	}
-	resp, err := http.Get(u.String() + identityPath + id + "?include_credential=oidc")
+	cfg.Scheme = u.Scheme
+	cfg.Host = u.Host
+
+	apiClient := client.NewAPIClient(cfg)
+
+	getIdentity, r, err := apiClient.V0alpha2Api.AdminGetIdentity(context.Background(), id).Execute()
 	if err != nil {
-		log.Error(err, "error call to kratos")
-		status := http.StatusInternalServerError
-		if resp != nil {
-			status = resp.StatusCode
-		}
-		return nil, errorx.NewHTTP(err, status, "fail to call kratos")
+		log.Error(err, "Error when calling `V0alpha2Api.AdminGetIdentity`` %v\n")
+		log.Error(err,"Full HTTP response: %v\n", r)
+		return nil, errorx.NewHTTP(err, r.StatusCode, "fail to call kratos")
 	}
 
+	logx.WithName(ctx, fmt.Sprintf("Data for identity with id %v. Traits %v\n", id, getIdentity.Traits))
+
 	// ready response from kratos
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Error(err, "error call to kratos")
-		return nil, errorx.NewHTTP(err, resp.StatusCode, "fail to call kratos")
+		return nil, errorx.NewHTTP(err, r.StatusCode, "fail to call kratos")
 	}
 	defer func() {
-		_ = resp.Body.Close()
+		_ = r.Body.Close()
 	}()
 
 	// unmarshalling body into identity struct
@@ -99,7 +260,7 @@ func (a auth) GetIdentityFromAPI(ctx context.Context, id string) (*client.Identi
 	cfg.Host = u.Host
 	api := client.NewAPIClient(cfg)
 
-	i, rsp, err := api.V0alpha1Api.AdminGetIdentity(ctx, id).Execute()
+	i, rsp, err := api.V0alpha2Api.AdminGetIdentity(ctx, id).Execute()
 	if err != nil {
 		log.Error(err, "get identity failed")
 		return nil, errorx.NewHTTP(err, rsp.StatusCode, "get identity failed")
