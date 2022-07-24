@@ -1,4 +1,8 @@
 
+<a name="v0.2.0"></a>
+## [v0.2.0](https://github.com/w6d-io/kratox/compare/v0.1.0...v0.2.0) (2022-07-24)
+
+
 <a name="v0.1.0"></a>
 ## v0.1.0 (2021-12-27)
 
