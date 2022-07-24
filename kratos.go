@@ -5,10 +5,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/w6d-io/x/errorx"
-
 	client "github.com/ory/kratos-client-go"
-	"github.com/ory/kratos/identity"
+	"github.com/w6d-io/x/errorx"
 )
 
 type Conn struct {
@@ -17,40 +15,52 @@ type Conn struct {
 }
 
 type Helper interface {
+	// CreateIdentity is used to create the identity with user id on kratos service
+	// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
+	CreateIdentity(context.Context, string, map[string]interface{}) (*client.Identity, error)
 
 	// GetSessionFromHTTP is used to check if the session cookie is active ( ex: session.GetActive() )
 	// and also return user information
 	// if session is not set, return a nil session with StatusBadRequest and error
 	// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
-	GetSessionFromHTTP(ctx context.Context, req *http.Request) (*client.Session, error)
+	GetSessionFromHTTP(context.Context, *http.Request) (*client.Session, error)
 
 	// GetSessionFromGRPCCtx is used to forward a session stock into a context.
 	// It checks if session on context is present
 	// if session is not set, return a nil session with StatusBadRequest and error
 	// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
-	GetSessionFromGRPCCtx(ctx context.Context) (*client.Session, error)
+	GetSessionFromGRPCCtx(context.Context) (*client.Session, error)
 
-	// GetIdentityFromHTTP is used to get the identity who correspond to the user id on kratos service
+	// GetIdentity is used to get the identity who correspond to the user id on kratos service
 	// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
-	GetIdentityFromHTTP(ctx context.Context, id string) (*identity.Identity, error)
+	GetIdentity(context.Context, string) (*client.Identity, error)
 
-	// GetIdentityFromAPI is used to get the identity who correspond to the user id on kratos service
+	// GetIdentityWithCredentials is used to get the identity who correspond to the user id on kratos service
 	// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
-	GetIdentityFromAPI(ctx context.Context, id string) (*client.Identity, error)
+	GetIdentityWithCredentials(context.Context, string) (*client.Identity, error)
 
-	// GetIdentityFromCtxHTTP gets the session from context and retrieve the identity ID
-	// to make the http call
-	GetIdentityFromCtxHTTP(ctx context.Context) (*identity.Identity, error)
-
-	// GetIdentityFromCtxApi gets the session from context and retrieve the identity ID
+	// GetIdentityFromCtx gets the session from context and retrieve the identity ID
 	// to make the api call
-	GetIdentityFromCtxApi(ctx context.Context) (*client.Identity, error)
+	GetIdentityFromCtx(context.Context) (*client.Identity, error)
 
-	// GetTokenByHttp returns all tokens linked with the provider
-	GetTokenByHttp(ctx context.Context, provider string) (*Provider, error)
+	// GetToken returns all tokens linked with the provider
+	GetToken(context.Context, string) (*Provider, error)
 
-	// GetTokensByHttp returns all tokens linked with the provider
-	GetTokensByHttp(ctx context.Context) ([]Provider, error)
+	// GetTokens returns all tokens linked with the provider
+	GetTokens(context.Context) ([]Provider, error)
+
+	// UpdateIdentity is used to Update the identity with user id on kratos service
+	// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
+	// @params
+	//   - context
+	//   - id       : identity id
+	//   - schemaId : schema id
+	//   - trait
+	UpdateIdentity(context.Context, string, string, map[string]interface{}) (*client.Identity, error)
+
+	// DeleteIdentity is used to delete the identity who correspond to the user id on kratos service
+	// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
+	DeleteIdentity(context.Context, string) error
 }
 
 type Provider struct {

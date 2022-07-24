@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	client "github.com/ory/kratos-client-go"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/w6d-io/x/errorx"
@@ -19,10 +18,10 @@ const (
 )
 
 var (
-	errNoCookie             = errors.New(CookieName + " cookie not found")
-	errNoMDFromCtx          = errors.New("cannot get metadata from context")
-	errSessNotFoundInCtx    = errors.New("session not found in context")
-	errAddressNotFoundInCtx = errors.New("address not found in context")
+	errNoCookie             = errorx.New(nil, CookieName+" cookie not found")
+	errNoMDFromCtx          = errorx.New(nil, "cannot get metadata from context")
+	errSessNotFoundInCtx    = errorx.New(nil, "session not found in context")
+	errAddressNotFoundInCtx = errorx.New(nil, "address not found in context")
 )
 
 // GetSessionFromHTTP is used to check if the session cookie is active ( ex: session.GetActive() )
@@ -81,7 +80,7 @@ func (a auth) do(ctx context.Context, cookie string) (*client.Session, error) {
 	api := client.NewAPIClient(cfg)
 	log.V(2).Info("making call to kratos.GetSession", "session_id", cookie)
 
-	sess, rsp, err := api.V0alpha1Api.ToSession(ctx).Cookie(fmt.Sprintf("%s=%s", CookieName, cookie)).Execute()
+	sess, rsp, err := api.V0alpha2Api.ToSession(ctx).Cookie(fmt.Sprintf("%s=%s", CookieName, cookie)).Execute()
 	if err != nil {
 		log.Error(err, "get session failed")
 		status := http.StatusInternalServerError
