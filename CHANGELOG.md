@@ -2,6 +2,10 @@
 <a name="v0.2.0"></a>
 ## [v0.2.0](https://github.com/w6d-io/kratox/compare/v0.1.0...v0.2.0) (2022-07-24)
 
+### Features
+
+* insert create, update and delete methods [c9de512]("https://github.com/w6d-io/kratox/commit/c9de5123bce87d0180736eb30b8e209d9d3d5dd1")
+
 
 <a name="v0.1.0"></a>
 ## v0.1.0 (2021-12-27)
