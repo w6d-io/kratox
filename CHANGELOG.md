@@ -1,4 +1,12 @@
 
+<a name="v0.3.0"></a>
+## [v0.3.0](https://github.com/w6d-io/kratox/compare/v0.2.0...v0.3.0) (2022-07-25)
+
+### BREAKING CHANGE
+
+* rename kratos -> kratox [24cf7b8]("https://github.com/w6d-io/kratox/commit/24cf7b8cc69d822a4f970ba60e262b799e9d0b48")
+
+
 <a name="v0.2.0"></a>
 ## [v0.2.0](https://github.com/w6d-io/kratox/compare/v0.1.0...v0.2.0) (2022-07-24)
 
