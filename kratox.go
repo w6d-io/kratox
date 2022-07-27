@@ -4,6 +4,7 @@ import (
     "context"
     "net/http"
     "net/url"
+    "strconv"
 
     client "github.com/ory/kratos-client-go"
     "github.com/w6d-io/x/errorx"
@@ -12,6 +13,8 @@ import (
 type Conn struct {
     // Address is the address to the kratos micro service
     Address string `json:"address" mapstructure:"address"`
+    // Port is the port of the uri to the kratos micro service
+    Port string `json:"port" mapstructure:"port"`
 }
 
 type Helper interface {
@@ -94,8 +97,9 @@ func (k Conn) getKratosAddress() (*url.URL, error) {
     if err != nil {
         return nil, errorx.Wrap(err, "decode address failed")
     }
+
     if u.Host == "" {
-        u, err = url.Parse("http://" + k.Address)
+        u, err = url.Parse("http://" + k.Address + k.Port)
         if err != nil {
             return nil, errorx.Wrap(err, "decode address failed")
         }
@@ -103,6 +107,13 @@ func (k Conn) getKratosAddress() (*url.URL, error) {
     return u, nil
 }
 
-func SetAddress(address string) {
-    Kratox = &auth{Conn{Address: address}}
+// setAddress ip or uri and set port. Default port is nil.
+func SetAddress(address string, port ...int64) {
+    var p string
+
+    if len(port) > 0 {
+        p = ":" + strconv.Itoa(int(port[0]))
+    }
+
+    Kratox = &auth{Conn{Address: address, Port: p}}
 }
