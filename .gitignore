@@ -6,5 +6,5 @@ bin/
 # miscelaous
 *.swp
 
-# coverage
+# coverage and nohup
 *.out
