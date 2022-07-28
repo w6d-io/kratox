@@ -77,6 +77,8 @@ func (a auth) do(ctx context.Context, cookie string) (*client.Session, error) {
     cfg := client.NewConfiguration()
     cfg.Scheme = u.Scheme
     cfg.Host = u.Host
+    cfg.Debug = true
+
     api := client.NewAPIClient(cfg)
     log.V(2).Info("making call to kratos.GetSession", "session_id", cookie)
 
@@ -106,7 +108,6 @@ func GetSessionFromCtx(ctx context.Context) (*client.Session, error) {
         return nil, errSessNotFoundInCtx
     }
     return sess, nil
-
 }
 
 // SetSessionInCtx record session into context

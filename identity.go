@@ -14,7 +14,6 @@ import (
 // if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
 func (a auth) DeleteIdentity(ctx context.Context, id string) error {
     log := logx.WithName(ctx, "DeleteIdentity")
-
     cfg := client.NewConfiguration()
 
     u, err := a.getKratosAddress()
@@ -23,6 +22,7 @@ func (a auth) DeleteIdentity(ctx context.Context, id string) error {
     }
     cfg.Scheme = u.Scheme
     cfg.Host = u.Host
+    cfg.Debug = true
 
     api := client.NewAPIClient(cfg)
 
@@ -50,6 +50,7 @@ func (a auth) UpdateIdentity(ctx context.Context, id string, schemaId string, tr
     }
     cfg.Scheme = u.Scheme
     cfg.Host = u.Host
+    cfg.Debug = true
 
     api := client.NewAPIClient(cfg)
 
@@ -83,6 +84,7 @@ func (a auth) CreateIdentity(ctx context.Context, schemaId string, trait map[str
     }
     cfg.Scheme = u.Scheme
     cfg.Host = u.Host
+    cfg.Debug = true
 
     api := client.NewAPIClient(cfg)
 
