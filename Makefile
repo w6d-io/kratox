@@ -13,12 +13,15 @@ else
 GOOS       = $(shell go env GOOS)
 endif
 
+
+GO_DEPENDENCIES = golang.org/x/tools/cmd/goimports
+
 define make-go-dependency
   # go install is responsible for not re-building when the code hasn't changed
   bin/$(notdir $1): go.mod go.sum Makefile
 	GOBIN=$(PWD)/bin/ go install $1
 endef
-$(eval $(call make-go-dependency))
+$(foreach dep, $(GO_DEPENDENCIES), $(eval $(call make-go-dependency, $(dep))))
 $(call make-lint-dependency)
 
 # Formats the code
@@ -29,15 +32,6 @@ format:
 .PHONY: changelog
 changelog:
 	git-chglog -o CHANGELOG.md --next-tag $(NEXT_TAG)
-
-GOREADME = $(shell pwd)/bin/goreadme
-bin/goreadme: ## Download goreadme locally if necessary
-	$(call go-get-tool,$(GOREADME),github.com/posener/goreadme/cmd/goreadme)
-
-
-GOIMPORTS = $(shell pwd)/bin/goimports
-bin/goimports: ## Download goimports locally if necessary
-	$(call go-get-tool,$(GOIMPORTS),golang.org/x/tools/cmd/goimports)
 
 .PHONY: fmt
 fmt:
@@ -51,6 +45,16 @@ vet:
 test: fmt vet
 	go test -v -coverpkg=./... -coverprofile=cover.out ./...
 	@go tool cover -func cover.out | grep total
+
+.PHONY: bin/goreadme
+bin/goreadme:
+	GOBIN=${CURDIR}/bin \
+	go install github.com/posener/goreadme/cmd/goreadme
+
+.PHONY: readme
+readme: bin/goreadme
+	./third_party/script/create_readme.sh
+
 
 .PHONY: kratos
 KRATOS_BINARY = $(shell pwd)/bin/kratos

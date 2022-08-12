@@ -10,6 +10,7 @@ import (
 	"github.com/w6d-io/x/errorx"
 )
 
+// Conn is the struct variable for connect to a kratos server
 type Conn struct {
 	// Address is the address to the kratos micro service
 	Address string `json:"address" mapstructure:"address"`
@@ -126,7 +127,8 @@ func (k Conn) getVerboseState() bool {
 }
 
 
-// setAddress ip or uri and set port. Default port is nil.
+// SetAddress ip or uri and set port with verbose state. Default port is nil and default verbose is false.
+// In production mode is not necessary to set a verbose state in the ci configuration file
 func SetAddress(address string, verbose bool, port ...int64,) {
 	var p string
 
