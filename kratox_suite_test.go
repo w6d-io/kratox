@@ -4,21 +4,23 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net"
+	"os/exec"
+	"testing"
+
 	"github.com/jaswdr/faker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	_ "github.com/ory/kratos-client-go"
-	"github.com/w6d-io/kratox"
 	zapraw "go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
-	"net"
-	"os/exec"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	"testing"
+
+	"github.com/w6d-io/kratox"
 )
 
 func TestKratox(t *testing.T) {
@@ -32,7 +34,7 @@ func MockKratosServer(arg string) {
 	e.Stdout = &out
 	err := e.Run()
 	if err != nil {
-		fmt.Printf("Error %s: %q\n",arg, err)
+		fmt.Printf("Error %s: %q\n", arg, err)
 	}
 }
 
@@ -54,11 +56,11 @@ func CallKratosServer(flow string) string {
 
 	err := e.Run()
 	if err != nil {
-		fmt.Printf("Error %s: %q\n",flow, err)
+		fmt.Printf("Error %s: %q\n", flow, err)
 	}
 
 	// display the cookie
-	fmt.Printf(kratox.CookieName + " : %q\n", out.String())
+	fmt.Printf(kratox.CookieName+" : %q\n", out.String())
 
 	return out.String()
 }

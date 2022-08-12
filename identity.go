@@ -3,8 +3,9 @@ package kratox
 import (
 	"context"
 	"encoding/json"
-	client "github.com/ory/kratos-client-go"
 	"net/http"
+
+	client "github.com/ory/kratos-client-go"
 
 	"github.com/w6d-io/x/errorx"
 	"github.com/w6d-io/x/logx"

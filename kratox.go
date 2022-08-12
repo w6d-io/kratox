@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	client "github.com/ory/kratos-client-go"
+
 	"github.com/w6d-io/x/errorx"
 )
 
@@ -126,10 +127,9 @@ func (k Conn) getVerboseState() bool {
 	return state
 }
 
-
 // SetAddress ip or uri and set port with verbose state. Default port is nil and default verbose is false.
 // In production mode is not necessary to set a verbose state in the ci configuration file
-func SetAddress(address string, verbose bool, port ...int64,) {
+func SetAddress(address string, verbose bool, port ...int64) {
 	var p string
 
 	if len(port) > 0 {

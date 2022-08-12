@@ -26,8 +26,9 @@ $(call make-lint-dependency)
 
 # Formats the code
 .PHONY: format
+GOBIN = $(shell pwd)/bin
 format:
-	goimports -w -local github.com/w6d-io,gitlab.w6d.io/w6d .
+	$(GOBIN)/goimports -w -local ${CURDIR} .
 
 .PHONY: changelog
 changelog:

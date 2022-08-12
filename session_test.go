@@ -1,11 +1,13 @@
 package kratox_test
 
 import (
+	"net/http"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	kratox "github.com/w6d-io/kratox"
 	"google.golang.org/grpc/metadata"
-	"net/http"
+
+	kratox "github.com/w6d-io/kratox"
 )
 
 var _ = Describe("Session", func() {
