@@ -19,7 +19,7 @@ var _ = Describe("Session", func() {
 		})
 		It("succeeds to Get Session FromGRPCCtx", func() {
 			cookieHeader := CallKratosServer("register-login")
-			kratox.SetAddress("127.0.0.1", Verbose, 4433)
+			kratox.SetAddressDetails("127.0.0.1", Verbose, 4433)
 
 			ctx := metadata.NewIncomingContext(ctx, metadata.MD{
 				kratox.CookieName: []string{
@@ -31,7 +31,7 @@ var _ = Describe("Session", func() {
 			Expect(session).ToNot(BeNil())
 		})
 		It("error to Get Session FromGRPCCtx because cookies with name but is empty", func() {
-			kratox.SetAddress("127.0.0.1", Verbose, 4433)
+			kratox.SetAddressDetails("127.0.0.1", Verbose, 4433)
 
 			ctx := metadata.NewIncomingContext(ctx, metadata.MD{
 				kratox.CookieName: []string{""},
@@ -42,7 +42,7 @@ var _ = Describe("Session", func() {
 			Expect(session).To(BeNil())
 		})
 		It("error to Get Session FromGRPCCtx because cookie not found", func() {
-			kratox.SetAddress("127.0.0.1", Verbose, 4433)
+			kratox.SetAddressDetails("127.0.0.1", Verbose, 4433)
 
 			ctx := metadata.NewIncomingContext(ctx, metadata.MD{})
 			session, err := kratox.Kratox.GetSessionFromGRPCCtx(ctx)
@@ -51,7 +51,7 @@ var _ = Describe("Session", func() {
 		})
 		It("succeeds to Get Session FromHTTP", func() {
 			cookieHeader := CallKratosServer("register-login")
-			kratox.SetAddress("127.0.0.1", Verbose, 4433)
+			kratox.SetAddressDetails("127.0.0.1", Verbose, 4433)
 
 			req := http.Request{Header: map[string][]string{}}
 			req.AddCookie(&http.Cookie{Name: kratox.CookieName, Value: cookieHeader})
@@ -61,7 +61,7 @@ var _ = Describe("Session", func() {
 			Expect(session).ToNot(BeNil())
 		})
 		It("error to Get Session FromHTTP because cookies with name but is empty", func() {
-			kratox.SetAddress("127.0.0.1", Verbose, 4433)
+			kratox.SetAddressDetails("127.0.0.1", Verbose, 4433)
 
 			req := http.Request{Header: map[string][]string{}}
 			req.AddCookie(&http.Cookie{Name: kratox.CookieName, Value: ""})
@@ -71,7 +71,7 @@ var _ = Describe("Session", func() {
 			Expect(session).To(BeNil())
 		})
 		It("error to Get Session FromHTTP because cookie not found", func() {
-			kratox.SetAddress("127.0.0.1", Verbose, 4433)
+			kratox.SetAddressDetails("127.0.0.1", Verbose, 4433)
 
 			req := http.Request{Header: map[string][]string{}}
 

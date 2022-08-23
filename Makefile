@@ -28,7 +28,7 @@ $(call make-lint-dependency)
 .PHONY: format
 GOBIN = $(shell pwd)/bin
 format:
-	$(GOBIN)/goimports -w -local ${CURDIR} .
+	$(GOBIN)/goimports -w -local $(PWD) .
 
 .PHONY: changelog
 changelog:
@@ -49,12 +49,12 @@ test: fmt vet
 
 .PHONY: bin/goreadme
 bin/goreadme:
-	GOBIN=${CURDIR}/bin \
+	GOBIN=$(PWD)/bin \
 	go install github.com/posener/goreadme/cmd/goreadme
 
 .PHONY: readme
 readme: bin/goreadme
-	./third_party/script/create_readme.sh
+	./build/create_readme.sh
 
 
 .PHONY: kratos

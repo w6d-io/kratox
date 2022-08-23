@@ -1,4 +1,4 @@
-# kratox
+    # kratox
 
 ## Constants
 
@@ -23,11 +23,11 @@ GetAddressFromCtx return session from context or return an error
 
 GetSessionFromCtx return session from context or return an error
 
-### func [SetAddress](/kratox.go#L132)
+### func [SetAddressDetails](/kratox.go#L132)
 
-`func SetAddress(address string, verbose bool, port ...int64)`
+`func SetAddressDetails(address string, verbose bool, port ...int64)`
 
-SetAddress ip or uri and set port with verbose state. Default port is nil and default verbose is false.
+SetAddressDetails ip or uri and set port with verbose state. Default port is nil and default verbose is false.
 In production mode is not necessary to set a verbose state in the ci configuration file
 
 ### func [SetAddressInCtx](/session.go#L141)
@@ -44,13 +44,13 @@ SetSessionInCtx record session into context
 
 ## Types
 
-### type [Conn](/kratox.go#L14)
+### type [Conn](/kratox.go#L15)
 
 `type Conn struct { ... }`
 
 Conn is the struct variable for connect to a kratos server
 
-### type [ContextKey](/kratox.go#L90)
+### type [ContextKey](/kratox.go#L91)
 
 `type ContextKey int`
 
@@ -63,7 +63,7 @@ const (
 )
 ```
 
-### type [Helper](/kratox.go#L23)
+### type [Helper](/kratox.go#L24)
 
 `type Helper interface { ... }`
 
@@ -75,6 +75,6 @@ var (
 )
 ```
 
-### type [Provider](/kratox.go#L72)
+### type [Provider](/kratox.go#L73)
 
 `type Provider struct { ... }`

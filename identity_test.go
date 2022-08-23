@@ -76,7 +76,7 @@ var _ = Describe("Identity", func() {
   }`
 
 			// CONNECT TO SERVER
-			kratox.SetAddress("127.0.0.1", Verbose, 4434)
+			kratox.SetAddressDetails("127.0.0.1", Verbose, 4434)
 
 			// TRAIT
 			var traitCreation map[string]interface{}
