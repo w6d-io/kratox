@@ -1,4 +1,4 @@
-# kratos
+    # kratox
 
 ## Constants
 
@@ -9,48 +9,72 @@ const (
 )
 ```
 
+## Functions
+
+### func [GetAddressFromCtx](/session.go#L127)
+
+`func GetAddressFromCtx(ctx context.Context) (string, error)`
+
+GetAddressFromCtx return session from context or return an error
+
+### func [GetSessionFromCtx](/session.go#L99)
+
+`func GetSessionFromCtx(ctx context.Context) (*client.Session, error)`
+
+GetSessionFromCtx return session from context or return an error
+
+### func [SetAddressDetails](/kratox.go#L132)
+
+`func SetAddressDetails(address string, verbose bool, port ...int64)`
+
+SetAddressDetails ip or uri and set port with verbose state. Default port is nil and default verbose is false.
+In production mode is not necessary to set a verbose state in the ci configuration file
+
+### func [SetAddressInCtx](/session.go#L141)
+
+`func SetAddressInCtx(ctx context.Context, address string) context.Context`
+
+SetAddressInCtx record session into context
+
+### func [SetSessionInCtx](/session.go#L115)
+
+`func SetSessionInCtx(ctx context.Context, session *client.Session) context.Context`
+
+SetSessionInCtx record session into context
+
 ## Types
 
-### type [Conn](/kratos.go#L11)
+### type [Conn](/kratox.go#L15)
 
 `type Conn struct { ... }`
 
-### type [Helper](/kratos.go#L16)
+Conn is the struct variable for connect to a kratos server
+
+### type [ContextKey](/kratox.go#L91)
+
+`type ContextKey int`
+
+#### Constants
+
+```golang
+const (
+    AddressKey ContextKey = iota
+    SessionKey
+)
+```
+
+### type [Helper](/kratox.go#L24)
 
 `type Helper interface { ... }`
 
-### type [Kratos](/kratos.go#L39)
+#### Variables
 
-`type Kratos struct { ... }`
+```golang
+var (
+    Kratox Helper
+)
+```
 
-#### func (Kratos) [GetIdentityFromAPI](/identity.go#L56)
+### type [Provider](/kratox.go#L73)
 
-`func (k Kratos) GetIdentityFromAPI(ctx context.Context, id string) (*client.Identity, error)`
-
-GetIdentityFromAPI is used to get the identity who correspond to the user id on kratos service
-if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
-
-#### func (Kratos) [GetIdentityFromHTTP](/identity.go#L24)
-
-`func (k Kratos) GetIdentityFromHTTP(ctx context.Context, id string) (*identity.Identity, error)`
-
-GetIdentityFromHTTP is used to get the identity who correspond to the user id on kratos service
-if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
-
-#### func (Kratos) [GetSessionFromGRPCCtx](/session.go#L46)
-
-`func (k Kratos) GetSessionFromGRPCCtx(ctx context.Context) (*client.Session, error)`
-
-GetSessionFromGRPCCtx is used to forward a session stock into a context.
-It checks if session on context is present
-if session is not set, return a nil session with StatusBadRequest and error
-if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
-
-#### func (Kratos) [GetSessionFromHTTP](/session.go#L30)
-
-`func (k Kratos) GetSessionFromHTTP(ctx context.Context, req *http.Request) (*client.Session, error)`
-
-GetSessionFromHTTP is used to check if the session cookie is active ( ex: session.GetActive() )
-and also return user information
-if session is not set, return a nil session with StatusBadRequest and error
-if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
+`type Provider struct { ... }`
