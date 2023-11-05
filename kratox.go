@@ -90,6 +90,10 @@ const (
 	SessionKey
 )
 
+const (
+	scheme = "http"
+)
+
 // getKratosAddress concat and format the svc and port from Conn variable
 func (k Conn) getKratosAddress() (*url.URL, error) {
 	u, err := url.Parse(k.Address)
@@ -97,7 +101,7 @@ func (k Conn) getKratosAddress() (*url.URL, error) {
 		return nil, errorx.Wrap(err, "decode address failed")
 	}
 	if u.Host == "" {
-		u, err = url.Parse("http://" + k.Address)
+		u, err = url.Parse(scheme + "://" + k.Address)
 		if err != nil {
 			return nil, errorx.Wrap(err, "decode address failed")
 		}
@@ -112,7 +116,7 @@ func (k Conn) getKratosAdminAddress() (*url.URL, error) {
 		return nil, errorx.Wrap(err, "decode address failed")
 	}
 	if u.Host == "" {
-		u, err = url.Parse("http://" + k.AdminAddress)
+		u, err = url.Parse(scheme + "://" + k.AdminAddress)
 		if err != nil {
 			return nil, errorx.Wrap(err, "decode address failed")
 		}
