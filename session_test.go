@@ -40,6 +40,18 @@ func TestGetAddressFromCtx(t *testing.T) {
 			want:    "",
 			wantErr: true,
 		},
+		{
+			name:    "with a no string address",
+			args:    args{ctx: context.WithValue(context.Background(), AddressKey, 1)},
+			want:    "",
+			wantErr: true,
+		},
+		{
+			name:    "get address",
+			args:    args{ctx: context.WithValue(context.Background(), AddressKey, "http://localhost")},
+			want:    "http://localhost",
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -98,8 +110,13 @@ func TestSetAddressInCtx(t *testing.T) {
 	}{
 		{
 			name: "set an address into the context",
-			args: args{ctx: context.Background(), address: "http://localhost"},
+			args: args{ctx: nil, address: "http://localhost"},
 			want: context.WithValue(context.Background(), AddressKey, "http://localhost"),
+		},
+		{
+			name: "get an empty context",
+			args: args{ctx: nil, address: ""},
+			want: context.Background(),
 		},
 	}
 	for _, tt := range tests {
@@ -147,6 +164,75 @@ func TestSetSessionInCtx(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := SetSessionInCtx(tt.args.ctx, tt.args.session); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SetSessionInCtx() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetCookieFromCtx(t *testing.T) {
+	type args struct {
+		ctx context.Context
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "nil context",
+			args: args{ctx: nil},
+			want: "",
+		},
+		{
+			name: "no cookie from context",
+			args: args{ctx: context.Background()},
+			want: "",
+		},
+		{
+			name: "get cookie from context",
+			args: args{ctx: context.WithValue(context.Background(), CookieKey, "test")},
+			want: "test",
+		},
+		{
+			name: "get empty string due to wrong type",
+			args: args{ctx: context.WithValue(context.Background(), CookieKey, 1)},
+			want: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GetCookieFromCtx(tt.args.ctx); got != tt.want {
+				t.Errorf("GetCookieFromCtx() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSetCookieInCtx(t *testing.T) {
+	type args struct {
+		ctx    context.Context
+		cookie string
+	}
+	tests := []struct {
+		name string
+		args args
+		want context.Context
+	}{
+		{
+			name: "get empty context",
+			args: args{ctx: nil},
+			want: context.Background(),
+		},
+		{
+			name: "get context with cook",
+			args: args{ctx: nil, cookie: "test"},
+			want: context.WithValue(context.Background(), CookieKey, "test"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := SetCookieInCtx(tt.args.ctx, tt.args.cookie); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SetCookieInCtx() = %v, want %v", got, tt.want)
 			}
 		})
 	}
