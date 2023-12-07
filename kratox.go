@@ -88,6 +88,7 @@ type ContextKey int
 const (
 	AddressKey ContextKey = iota
 	SessionKey
+	CookieKey
 )
 
 const (

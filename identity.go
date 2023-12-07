@@ -32,7 +32,7 @@ func (a auth) DeleteIdentity(ctx context.Context, id string) error {
 
 	api := client.NewAPIClient(cfg)
 
-	r, err := api.IdentityApi.DeleteIdentity(context.Background(), id).Execute()
+	r, err := api.IdentityApi.DeleteIdentity(ctx, id).Execute()
 	if err != nil {
 		log.Error(err, "calling fail", "name", "DeleteIdentity", "response", r)
 		return errorx.NewHTTP(err, r.StatusCode, "fail to call kratos")
@@ -107,7 +107,7 @@ func (a auth) CreateIdentity(ctx context.Context, schemaId string, trait map[str
 		trait,
 	) // AdminCreateIdentityBody |  (optional)
 
-	createdIdentity, r, err := api.IdentityApi.CreateIdentity(context.Background()).CreateIdentityBody(adminCreateIdentityBody).Execute()
+	createdIdentity, r, err := api.IdentityApi.CreateIdentity(ctx).CreateIdentityBody(adminCreateIdentityBody).Execute()
 	if err != nil {
 		log.Error(err, "calling fail", "name", "CreateIdentity", "response", r)
 		return nil, errorx.NewHTTP(err, r.StatusCode, "fail to call kratos")
@@ -140,7 +140,7 @@ func (a auth) GetIdentity(ctx context.Context, id string) (*client.Identity, err
 
 	api := client.NewAPIClient(cfg)
 
-	getIdentity, r, err := api.IdentityApi.GetIdentity(context.Background(), id).Execute()
+	getIdentity, r, err := api.IdentityApi.GetIdentity(ctx, id).Execute()
 	if err != nil {
 		log.Error(err, "calling fail", "name", "GetIdentity", "response", r)
 		return nil, errorx.NewHTTP(err, r.StatusCode, "fail to call kratos")
@@ -171,7 +171,7 @@ func (a auth) GetIdentityWithCredentials(ctx context.Context, id string) (*clien
 
 	api := client.NewAPIClient(cfg)
 
-	getIdentity, r, err := api.IdentityApi.GetIdentity(context.Background(), id).IncludeCredential(includeCredential).Execute()
+	getIdentity, r, err := api.IdentityApi.GetIdentity(ctx, id).IncludeCredential(includeCredential).Execute()
 	if err != nil {
 		log.Error(err, "calling fail", "name", "GetIdentity", "response", r)
 		return nil, errorx.NewHTTP(err, r.StatusCode, "fail to call kratos")

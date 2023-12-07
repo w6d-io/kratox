@@ -151,3 +151,31 @@ func SetAddressInCtx(ctx context.Context, address string) context.Context {
 	ctx = context.WithValue(ctx, AddressKey, address)
 	return ctx
 }
+
+// GetCookieFromCtx return the ory_kratos_session cookie from context
+func GetCookieFromCtx(ctx context.Context) string {
+	if ctx == nil {
+		return ""
+	}
+	c := ctx.Value(CookieKey)
+	if c == nil {
+		return ""
+	}
+	cookie, ok := c.(string)
+	if !ok {
+		return ""
+	}
+	return cookie
+}
+
+// SetCookieInCtx record ory_kratos_session into context
+func SetCookieInCtx(ctx context.Context, cookie string) context.Context {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if cookie == "" {
+		return ctx
+	}
+	ctx = context.WithValue(ctx, CookieKey, cookie)
+	return ctx
+}
