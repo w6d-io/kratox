@@ -17,11 +17,13 @@ package kratox
 
 import (
 	"context"
-	client "github.com/ory/kratos-client-go"
-	"k8s.io/utils/pointer"
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
+
+	client "github.com/ory/kratos-client-go"
+	"k8s.io/utils/pointer"
 )
 
 func TestGetAddressFromCtx(t *testing.T) {
@@ -233,6 +235,75 @@ func TestSetCookieInCtx(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := SetCookieInCtx(tt.args.ctx, tt.args.cookie); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SetCookieInCtx() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSetCookieFromHttpToCtx(t *testing.T) {
+	type args struct {
+		ctx context.Context
+		req *http.Request
+	}
+	r1, err := http.NewRequest("GET", "http//localhost", nil)
+	if err != nil {
+		t.Errorf("failed to create http request")
+		return
+	}
+	r2, err := http.NewRequest("GET", "http//localhost", nil)
+	if err != nil {
+		t.Errorf("failed to create http request")
+		return
+	}
+
+	r2.AddCookie(&http.Cookie{
+		Name:  CookieName,
+		Value: "12345",
+	})
+	r3, err := http.NewRequest("GET", "http//localhost", nil)
+	if err != nil {
+		t.Errorf("failed to create http request")
+		return
+	}
+
+	r3.AddCookie(&http.Cookie{
+		Name:  CookieName,
+		Value: "",
+	})
+	tests := []struct {
+		name    string
+		args    args
+		want    context.Context
+		wantErr bool
+	}{
+		{
+			name:    "with no context and no cookie",
+			args:    args{ctx: nil, req: r1},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "with no context but with cookie",
+			args:    args{ctx: nil, req: r2},
+			want:    context.WithValue(context.Background(), CookieKey, "12345"),
+			wantErr: false,
+		},
+		{
+			name:    "with no context but with empty cookie",
+			args:    args{ctx: nil, req: r3},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := SetCookieFromHttpToCtx(tt.args.ctx, tt.args.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("SetCookieFromHttpToCtx() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SetCookieFromHttpToCtx() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -179,3 +179,21 @@ func SetCookieInCtx(ctx context.Context, cookie string) context.Context {
 	ctx = context.WithValue(ctx, CookieKey, cookie)
 	return ctx
 }
+
+// SetCookieFromHttpToCtx record ory_kratos_session into context
+func SetCookieFromHttpToCtx(ctx context.Context, req *http.Request) (context.Context, error) {
+	log := logx.WithName(ctx, "GetSessionFromCtx")
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	cookie, err := req.Cookie(CookieName)
+	if err != nil {
+		log.Error(err, "get ory_kratos_session cookie failed")
+		return nil, errorx.NewHTTP(err, http.StatusUnauthorized, "get ory_kratos_session cookie failed")
+	}
+	if cookie.Value == "" {
+		return nil, errorx.NewHTTP(nil, http.StatusUnauthorized, "get ory_kratos_session cookie failed")
+	}
+	ctx = context.WithValue(ctx, CookieKey, cookie.Value)
+	return ctx, nil
+}
