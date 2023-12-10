@@ -63,6 +63,8 @@ type Helper interface {
 	// DeleteIdentity is used to delete the identity who correspond to the user id on kratos service
 	// if kratos is unreachable or an other issues, return nil session with statusCode of the call and error-go
 	DeleteIdentity(context.Context, string) error
+
+	PatchIdentity(context.Context, string, []client.JsonPatch) (*client.Identity, error)
 }
 
 type Provider struct {

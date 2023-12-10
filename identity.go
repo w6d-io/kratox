@@ -241,3 +241,33 @@ func (a auth) GetTokens(ctx context.Context) ([]Provider, error) {
 	return providers, nil
 
 }
+
+// PatchIdentity record some field of identity
+func (a auth) PatchIdentity(ctx context.Context, id string, jsonPatch []client.JsonPatch) (*client.Identity, error) {
+	log := logx.WithName(ctx, "PatchIdentity")
+	cfg := client.NewConfiguration()
+
+	u, err := a.getKratosAdminAddress()
+	if err != nil {
+		log.Error(err, "fail to get admin kratos address")
+		return nil, errorx.NewHTTP(err, http.StatusInternalServerError, "fail to get kratos address")
+	}
+	cfg.Scheme = u.Scheme
+	cfg.Host = u.Host
+	cfg.Servers = []client.ServerConfiguration{
+		{
+			URL: u.String(),
+		},
+	}
+
+	api := client.NewAPIClient(cfg)
+	r := api.IdentityApi.PatchIdentity(ctx, id)
+	r.JsonPatch(jsonPatch)
+
+	i, _, err := r.Execute()
+	if err != nil {
+		log.Error(err, "patching failed")
+		return nil, errorx.NewHTTP(err, http.StatusInternalServerError, "http patch failed")
+	}
+	return i, nil
+}
