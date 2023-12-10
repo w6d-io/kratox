@@ -6,6 +6,7 @@ require (
 	github.com/ory/kratos-client-go v1.0.0
 	github.com/w6d-io/x v0.13.10
 	google.golang.org/grpc v1.59.0
+	k8s.io/utils v0.0.0-20230711102312-30195339c3c7
 )
 
 replace (
@@ -78,7 +79,6 @@ require (
 	k8s.io/component-base v0.27.4 // indirect
 	k8s.io/klog/v2 v2.100.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20230718181711-3c0fae5ee9fd // indirect
-	k8s.io/utils v0.0.0-20230711102312-30195339c3c7 // indirect
 	sigs.k8s.io/controller-runtime v0.15.0 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.3.0 // indirect
