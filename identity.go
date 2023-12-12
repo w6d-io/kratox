@@ -261,8 +261,7 @@ func (a auth) PatchIdentity(ctx context.Context, id string, jsonPatch []client.J
 	}
 
 	api := client.NewAPIClient(cfg)
-	r := api.IdentityApi.PatchIdentity(ctx, id)
-	r.JsonPatch(jsonPatch)
+	r := api.IdentityApi.PatchIdentity(ctx, id).JsonPatch(jsonPatch)
 
 	i, _, err := r.Execute()
 	if err != nil {
