@@ -197,3 +197,17 @@ func SetCookieFromHttpToCtx(ctx context.Context, req *http.Request) (context.Con
 	ctx = context.WithValue(ctx, CookieKey, cookie.Value)
 	return ctx, nil
 }
+
+func GetSession(ctx context.Context) error {
+	s, err := GetSessionFromCtx(ctx)
+	if err != nil || s == nil {
+		logx.WithName(ctx, "getSession").Error(err, "fail to get session")
+		return &errorx.Error{
+			Cause:      err,
+			StatusCode: http.StatusUnauthorized,
+			Code:       "auth_invalid_session",
+			Message:    "Invalid session",
+		}
+	}
+	return nil
+}

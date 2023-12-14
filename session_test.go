@@ -308,3 +308,34 @@ func TestSetCookieFromHttpToCtx(t *testing.T) {
 		})
 	}
 }
+
+func TestGetSession(t *testing.T) {
+	type args struct {
+		ctx context.Context
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name:    "not authorized",
+			args:    args{ctx: context.Background()},
+			wantErr: true,
+		},
+		{
+			name: "authorized",
+			args: args{ctx: SetSessionInCtx(context.Background(), &client.Session{
+				Active: pointer.Bool(true),
+			})},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := GetSession(tt.args.ctx); (err != nil) != tt.wantErr {
+				t.Errorf("GetSession() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
