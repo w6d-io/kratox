@@ -18,10 +18,10 @@ const (
 )
 
 var (
-	errNoCookie             = errorx.New(nil, CookieName+" cookie not found")
-	errNoMDFromCtx          = errorx.New(nil, "cannot get metadata from context")
-	errSessNotFoundInCtx    = errorx.New(nil, "session not found in context")
-	errAddressNotFoundInCtx = errorx.New(nil, "address not found in context")
+	errNoCookie             = errorx.New(CookieName + " cookie not found")
+	errNoMDFromCtx          = errorx.New("cannot get metadata from context")
+	errSessNotFoundInCtx    = errorx.New("session not found in context")
+	errAddressNotFoundInCtx = errorx.New("address not found in context")
 )
 
 // GetSessionFromHTTP is used to check if the session cookie is active ( ex: session.GetActive() )
